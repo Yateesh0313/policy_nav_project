@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>PolicyNav – AI-Powered Policy Search</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #eef2ff, #dfe9ff, #f6f9ff);
+      margin: 0;
+      padding: 0;
+      color: #2c3e50;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      background-attachment: fixed;
+      overflow-x: hidden;
+    }
+
+    header {
+      background: linear-gradient(90deg, #004aad, #007bff, #00bfff);
+      color: white;
+      width: 100%;
+      padding: 25px 0;
+      text-align: center;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .search-section {
+      margin: 30px auto;
+      text-align: center;
+    }
+
+    .search-bar {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    input[type="text"] {
+      width: 420px;
+      padding: 13px 18px;
+      border-radius: 30px;
+      border: none;
+      background: rgba(255, 255, 255, 0.85);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      font-size: 15px;
+      transition: 0.3s;
+      backdrop-filter: blur(6px);
+    }
+
+    input[type="text"]:focus {
+      background: white;
+      box-shadow: 0 0 10px rgba(0, 123, 255, 0.25);
+      outline: none;
+      transform: scale(1.02);
+    }
+
+    button {
+      background: linear-gradient(90deg, #007bff, #00bfff);
+      color: white;
+      border: none;
+      border-radius: 25px;
+      padding: 12px 24px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.25s ease;
+      box-shadow: 0 6px 14px rgba(0, 123, 255, 0.25);
+    }
+
+    button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 20px rgba(0, 123, 255, 0.3);
+      filter: brightness(1.05);
+    }
+
+    /* Quantum button special gradient */
+    .quantum-btn {
+      background: linear-gradient(90deg, #6a0dad, #9b30ff, #ba55d3);
+      box-shadow: 0 6px 18px rgba(138, 43, 226, 0.3);
+    }
+    .quantum-btn:hover {
+      box-shadow: 0 10px 25px rgba(138, 43, 226, 0.45);
+    }
+
+    /* Results */
+    .results-container {
+      width: 92%;
+      max-width: 1150px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 22px;
+      margin-bottom: 35px;
+    }
+
+    .result-card {
+      background: rgba(255, 255, 255, 0.7);
+      border-radius: 16px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+      padding: 18px;
+      border-top: 4px solid #007bff;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      overflow: hidden;
+    }
+
+    .result-card:hover {
+      transform: translateY(-6px) scale(1.02);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+    }
+
+    /* Distinct visual for quantum results */
+    .quantum-result {
+      background: linear-gradient(145deg, rgba(75, 0, 130, 0.15), rgba(138, 43, 226, 0.25));
+      border-top: 4px solid #8a2be2;
+      box-shadow: 0 0 15px rgba(138, 43, 226, 0.25);
+      animation: glowPulse 2s infinite alternate;
+    }
+
+    @keyframes glowPulse {
+      from { box-shadow: 0 0 10px rgba(138,43,226,0.2); }
+      to { box-shadow: 0 0 25px rgba(186,85,211,0.5); }
+    }
+
+    .result-card h3 { color: #1a5276; margin: 0 0 8px 0; font-size: 17px; }
+    .meta { font-size: 13.5px; color: #555; margin-bottom: 8px; }
+    .score { color: #27ae60; font-weight: 700; }
+    p { color: #444; margin: 0; }
+
+    .visualization-wrapper {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 25px;
+      width: 90%;
+      max-width: 1200px;
+      margin: 40px auto 60px;
+    }
+
+    .chart-container {
+      flex: 1 1 45%;
+      min-width: 360px;
+      max-width: 550px;
+      height: 360px;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 16px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+      padding: 20px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      backdrop-filter: blur(10px);
+      transition: 0.3s;
+    }
+
+    .chart-container:hover {
+      transform: scale(1.03);
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.15);
+    }
+
+    footer { 
+      text-align: center; 
+      font-size: 13px; 
+      color: #777; 
+      margin: 30px; 
+      opacity: 0.8; 
+    }
+
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>📘 Public Policy (Education & Poverty) Navigation Using AI</h1>
+  </header>
+
+  <section class="search-section">
+    <div class="search-bar">
+      <form method="post" action="/search">
+        <input type="text" name="query" placeholder="Enter your policy query (e.g. teacher training in rural areas)" required>
+        <button type="submit">🔍 AI Search</button>
+      </form>
+
+      <form method="post" action="/call_quantum">
+        <input type="hidden" name="query" value="education reform policy">
+        <button type="submit" class="quantum-btn">⚛️ Quantum AI Search</button>
+      </form>
+    </div>
+  </section>
+
+  {% if results %}
+    <div class="results-container">
+      {% for r in results %}
+        <div class="result-card {% if 'Quantum' in r.title %}quantum-result{% endif %}">
+          <h3>{{ r.title }}</h3>
+          <div class="meta">Region: {{ r.region }} | Year: {{ r.year }} | Status: {{ r.status }}</div>
+          <div class="meta">Relevance Score: <span class="score">{{ r.score }}</span></div>
+          <div class="meta">Stakeholders: {{ r.stakeholders }}</div>
+          <p>{{ r.text }}</p>
+        </div>
+      {% endfor %}
+    </div>
+
+    <div class="visualization-wrapper">
+      <div class="chart-container">
+        <div class="chart-title">📊 Policy Relevance Scores</div>
+        <canvas id="resultChart"></canvas>
+      </div>
+
+      <div class="chart-container">
+        <div class="chart-title">📈 Policy Year Distribution</div>
+        <canvas id="yearChart"></canvas>
+      </div>
+
+      <!-- Extra visualization card added -->
+      <div class="chart-container">
+        <div class="chart-title">🧠 Quantum Impact Insights</div>
+        <p class="chart-note">
+          This view summarizes the conceptual overlap and innovation intensity
+          for policies identified through Quantum AI Search.
+        </p>
+        <canvas id="quantumChart"></canvas>
+      </div>
+    </div>
+
+    <script>
+      const titles = {{ results|map(attribute='title')|list|tojson }};
+      const scores = {{ results|map(attribute='score')|list|tojson }};
+      const years = {{ results|map(attribute='year')|list|map('int')|list|tojson }};
+
+      new Chart(document.getElementById('resultChart'), {
+        type: 'bar',
+        data: {
+          labels: titles,
+          datasets: [{
+            label: 'Relevance Score',
+            data: scores,
+            backgroundColor: 'rgba(52, 152, 219, 0.8)',
+            borderColor: 'rgba(41, 128, 185, 1)',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          maintainAspectRatio: false,
+          responsive: true,
+          scales: { y: { beginAtZero: true, max: 1 } },
+          plugins: { legend: { display: false } }
+        }
+      });
+
+      const yearCounts = {};
+      years.forEach(y => { yearCounts[y] = (yearCounts[y] || 0) + 1; });
+      new Chart(document.getElementById('yearChart'), {
+        type: 'pie',
+        data: {
+          labels: Object.keys(yearCounts),
+          datasets: [{
+            data: Object.values(yearCounts),
+            backgroundColor: ['#3498db','#e67e22','#27ae60','#9b59b6','#f1c40f']
+          }]
+        },
+        options: { maintainAspectRatio: false, responsive: true }
+      });
+
+      // Extra chart for quantum visualization
+      new Chart(document.getElementById('quantumChart'), {
+        type: 'radar',
+        data: {
+          labels: ['Innovation', 'Equity', 'Scalability', 'Sustainability', 'Quantum Benefit'],
+          datasets: [{
+            label: 'Quantum Policy Impact',
+            data: [0.8, 0.7, 0.6, 0.9, 1.0],
+            backgroundColor: 'rgba(186, 85, 211, 0.3)',
+            borderColor: '#8a2be2',
+            pointBackgroundColor: '#8a2be2'
+          }]
+        },
+        options: {
+          maintainAspectRatio: false,
+          responsive: true,
+          scales: { r: { beginAtZero: true, max: 1 } },
+          plugins: { legend: { display: false } }
+        }
+      });
+    </script>
+
+  {% else %}
+    <p style="text-align:center; color:#888; margin-top:18px;">Try entering a query above to find related policies.</p>
+  {% endif %}
+
+  <footer>© 2025 PolicyNav — AI-Powered Policy Discovery for Education & Poverty</footer>
+</body>
+</html>
