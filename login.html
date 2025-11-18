@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login | PolicyNav</title>
+
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #e0f0ff, #f3f8ff);
+      height: 100vh;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .login-box {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 40px;
+      width: 350px;
+      border-radius: 20px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    h2 { margin-bottom: 20px; color: #004aad; }
+
+    input {
+      width: 100%;
+      padding: 12px 14px;
+      margin: 10px 0;
+      border-radius: 25px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(90deg, #007bff, #00bfff);
+      border: none;
+      border-radius: 25px;
+      color: white;
+      font-size: 15px;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+
+    a { color: #007bff; cursor: pointer; }
+
+    .error { color: red; font-size: 13px; }
+    .success { color: green; font-size: 13px; }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background: #fff;
+      padding: 30px;
+      border-radius: 20px;
+      width: 360px;
+      text-align: center;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+    }
+
+    .close-btn {
+      float: right;
+      font-size: 20px;
+      cursor: pointer;
+      color: #444;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="login-box">
+    <h2>🔐 Login</h2>
+
+    <form method="post" action="/login_auth">
+      <input type="text" name="username" placeholder="Enter username" required>
+      <input type="password" name="password" placeholder="Enter password" required>
+      <button type="submit">Login</button>
+
+      {% if error %}
+      <p class="error">{{ error }}</p>
+      {% endif %}
+
+      {% if success %}
+      <p class="success">{{ success }}</p>
+      {% endif %}
+    </form>
+
+    <p>Don't have an account? <a onclick="openModal()">Create Account</a></p>
+  </div>
+
+  <!-- Register Modal -->
+  <div id="registerModal" class="modal">
+    <div class="modal-content">
+      <span class="close-btn" onclick="closeModal()">&times;</span>
+      <h2>📝 Register</h2>
+
+      <form method="post" action="/register_auth">
+        <input type="text" name="username" placeholder="Choose username" required>
+        <input type="password" name="password" placeholder="Choose password" required>
+        <button type="submit">Register</button>
+
+        {% if reg_error %}
+        <p class="error">{{ reg_error }}</p>
+        {% endif %}
+      </form>
+    </div>
+  </div>
+
+  <script>
+    function openModal() {
+      document.getElementById("registerModal").style.display = "flex";
+    }
+    function closeModal() {
+      document.getElementById("registerModal").style.display = "none";
+    }
+  </script>
+
+</body>
+</html>
